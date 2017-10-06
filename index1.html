@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<title></title>
+</head>
+<body ng-app="myapp" ng-controller="myctrl">
+
+<table class="table table-striped" ng-init="getInfo()">
+<tr><th>sno</th><th>NAME</th><th>Email</th></tr>
+
+		<tr>
+		<td><label>NAME:</label><input type="" name="" ng-model="username"></td>
+		<td><LABEL>EMAIL:</LABEL><input type="" name="" ng-model="useremail"></td>
+		<td><button ng-click="add()">addrecord</button></td>
+		<td><button ng-click="updatebntn()"> upadte </button></td>
+		</tr>
+		
+<tr ng-repeat="user in users">
+<td>{{$index+1}}</td>
+<td>{{user.name}}</td>
+<td>{{user.email}}</td>
+<td><button ng-click="edit(user)">Edit</button></td>
+
+<td><button ng-click="delete(user)">Delete</button></td>
+
+</tr>
+
+<script>
+	
+var app=angular.module("myapp",[])
+app.controller("myctrl",function($scope,$http){
+
+	$scope.getInfo=function(){
+		  $http({
+                    method: "GET",
+                    url: "/GetuserDetails",
+                    data: "",
+                }).then(function (res) {
+                    $scope.users = res.data;
+                });
+	}
+
+
+
+$scope.add=function(){
+	$scope.addrecorddetails={username:$scope.username,Email:$scope.useremail}
+	$http({
+                    method: "POST",
+                    url: "/userDetails",
+                    data: $scope.addrecorddetails,
+                }).then(function (res) {
+                    $scope.getInfo();
+                    console.log(res);
+                }, function error(err) {
+
+                })
+            
+}
+$scope.edit=function(user){
+	$scope.username=user.name
+	$scope.useremail=user.email
+	$scope.getInfo();
+}
+
+$scope.updatebntn=function(){
+	  $scope.userDetails = { updatedusername: $scope.username, updatedusermail: $scope.useremail }
+                $http({
+                    method: "post",
+                    url: "/updateUserDetails",
+                    data: $scope.userDetails,
+                }).then(function (res) {
+                    $scope.getInfo();
+                    console.log(res);
+                      $scope.users = res.data;
+                }, function error(err) {
+
+                })
+
+}
+$scope.delete=function(user){
+$scope.username=""
+$scope.useremail=""
+$http({
+                    method: "POST",
+                    url: "/removeUserDetails",
+                    data: JSON.stringify({ removeByusername:user.name })
+                }).then(function (res) {
+                    if (res.data.msg.ok > 0) {
+                        //$scope.removed = $scope.removeUserName;
+                       
+                        alert('SuccessFully Removed...!');
+                        $scope.getInfo()
+                    }
+                    
+                    
+                })
+}
+})
+
+</script>
+			</table>
+			</body>
+			</html>
